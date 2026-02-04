@@ -841,47 +841,5 @@ FLUJO:
 
 ## 📞 Base de datos con MySQL Workbench
 
-CREATE DATABASE myshopli;
-USE myshopli;
-
-CREATE TABLE users (
-  id CHAR(36) PRIMARY KEY,
-  name VARCHAR(100),
-  email VARCHAR(100) UNIQUE,
-  password VARCHAR(255),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE products (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  name VARCHAR(100),
-  category VARCHAR(50),
-  estimated_price DECIMAL(10,2),
-  is_purchased BOOLEAN DEFAULT FALSE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE purchases (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  total_amount DECIMAL(10,2),
-  purchase_date DATETIME,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE purchase_products (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  purchase_id CHAR(36),
-  product_name VARCHAR(100),
-  category VARCHAR(50),
-  price DECIMAL(10,2),
-  FOREIGN KEY (purchase_id) REFERENCES purchases(id)
-);
-
-
-
 ---
 
