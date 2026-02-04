@@ -1,7 +1,7 @@
-const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuid } = require('uuid');
+const User = require('../models/user.model');
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -10,11 +10,7 @@ exports.register = async (req, res) => {
   const id = uuid();
 
   try {
-    await pool.query(
-      'INSERT INTO users VALUES (?, ?, ?, ?, NOW())',
-      [id, name, email, hashed]
-    );
-
+    await User.create(id, name, email, hashed);
     const token = jwt.sign({ id }, process.env.JWT_SECRET);
     res.status(201).json({ success: true, token });
   } catch {
@@ -25,17 +21,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  const [rows] = await pool.query(
-    'SELECT * FROM users WHERE email = ?',
-    [email]
-  );
-
-  if (!rows.length)
+  const user = await User.findByEmail(email);
+  if (!user)
     return res.status(401).json({ message: 'Credenciales inválidas' });
 
-  const user = rows[0];
   const valid = await bcrypt.compare(password, user.password);
-
   if (!valid)
     return res.status(401).json({ message: 'Credenciales inválidas' });
 
