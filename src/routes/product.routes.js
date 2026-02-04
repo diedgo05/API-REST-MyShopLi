@@ -1,10 +1,18 @@
-const router = require('express').Router();
-const auth = require('../middlewares/auth.middleware');
-const ctrl = require('../controllers/product.controller');
+const express = require('express');
+const router = express.Router();
+const productController = require('../controllers/product.controller');
+const authMiddleware = require('../middlewares/auth.middleware');
 
-router.use(auth);
-router.get('/', ctrl.getProducts);
-router.post('/', ctrl.addProduct);
-router.delete('/:id', ctrl.deleteProduct);
+// Todas las rutas requieren autenticación
+router.use(authMiddleware);
+
+// CRUD de productos
+router.get('/', productController.getProducts);                    // GET /api/products
+router.get('/stats', productController.getStats);                  // GET /api/products/stats
+router.get('/:id', productController.getProductById);              // GET /api/products/:id
+router.post('/', productController.addProduct);                    // POST /api/products
+router.put('/:id', productController.updateProduct);               // PUT /api/products/:id
+router.delete('/:id', productController.deleteProduct);            // DELETE /api/products/:id
+router.patch('/:id/toggle', productController.togglePurchased);    // PATCH /api/products/:id/toggle
 
 module.exports = router;
