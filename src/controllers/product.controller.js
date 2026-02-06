@@ -31,56 +31,39 @@ const VALID_CATEGORIES = [
  */
 exports.getProducts = async (req, res) => {
   try {
-    const { isPurchased } = req.query;
-
     logJSON('🔵 GET PRODUCTS - Inicio', {
       endpoint: '/api/products',
       method: 'GET',
       userId: req.user.id,
-      filter: { isPurchased }
+      description: 'Obteniendo solo productos pendientes (no comprados)'
     });
 
-    // Obtener productos según el filtro
-    let products;
-    if (isPurchased === 'true') {
-      logJSON('🔍 GET PRODUCTS - Buscando productos comprados', {
-        userId: req.user.id
-      });
-      products = await Product.findPurchasedByUser(req.user.id);
-    } else if (isPurchased === 'false') {
-      logJSON('🔍 GET PRODUCTS - Buscando productos pendientes', {
-        userId: req.user.id
-      });
-      products = await Product.findAllByUser(req.user.id);
-    } else {
-      logJSON('🔍 GET PRODUCTS - Buscando todos los productos', {
-        userId: req.user.id
-      });
-      products = await Product.findAllProductsByUser(req.user.id);
-    }
+    // Llamamos al método que obtiene productos donde is_purchased = false
+    const products = await Product.findAllByUser(req.user.id);
 
-    logJSON('✅ GET PRODUCTS - Productos obtenidos', {
+    logJSON('✅ GET PRODUCTS - Éxito', {
       userId: req.user.id,
       count: products.length,
-      filter: isPurchased
+      status: 'Pendientes obtenidos correctamente'
     });
 
     res.status(200).json({
       success: true,
-      data: products,
-      count: products.length
+      count: products.length,
+      data: products
     });
 
   } catch (error) {
-    logJSON('❌ GET PRODUCTS - Error del servidor', {
+    logJSON('❌ GET PRODUCTS - Error', {
       errorMessage: error.message,
-      userId: req.user?.id
+      userId: req.user?.id,
+      stack: error.stack
     });
-    
+
     console.error('Error en getProducts:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al obtener productos',
+      message: 'Error al obtener productos pendientes',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
