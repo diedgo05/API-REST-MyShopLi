@@ -14,5 +14,5 @@ router.post('/', productController.addProduct);                    // POST /api/
 router.put('/:id', productController.updateProduct);               // PUT /api/products/:id
 router.delete('/:id', productController.deleteProduct);            // DELETE /api/products/:id
 router.patch('/:id/toggle', productController.togglePurchased);    // PATCH /api/products/:id/toggle
-
+router.patch('/:id/unpurchase', productController.unpurchaseProduct); // PATCH /api/products/:id/unpurchase
 module.exports = router;

@@ -671,3 +671,62 @@ exports.getStats = async (req, res) => {
     });
   }
 };
+
+exports.unpurchaseProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    logJSON('🔵 UNPURCHASE PRODUCT - Inicio', {
+      endpoint: `/api/products/${id}/unpurchase`,
+      method: 'PATCH',
+      productId: id,
+      userId: req.user.id
+    });
+
+    // 1. Verificar existencia y pertenencia
+    const product = await Product.findById(id, req.user.id);
+    
+    if (!product) {
+      logJSON('🔴 UNPURCHASE PRODUCT - No encontrado', { productId: id, userId: req.user.id });
+      return res.status(404).json({
+        success: false,
+        message: 'Producto no encontrado'
+      });
+    }
+
+    // 2. Cambiar estado a is_purchased = false
+    logJSON('🔄 UNPURCHASE PRODUCT - Ejecutando markAsNotPurchased', {
+      productId: id,
+      currentStatus: product.is_purchased
+    });
+
+    await Product.markAsNotPurchased(id);
+
+    logJSON('✅ UNPURCHASE PRODUCT - Éxito', {
+      productId: id,
+      name: product.name,
+      newStatus: 'is_purchased = false'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Producto movido a la lista de pendientes',
+      data: {
+        id: product.id,
+        is_purchased: false
+      }
+    });
+
+  } catch (error) {
+    logJSON('❌ UNPURCHASE PRODUCT - Error', {
+      errorMessage: error.message,
+      productId: req.params.id
+    });
+    
+    console.error('Error en unpurchaseProduct:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el estado del producto'
+    });
+  }
+};
